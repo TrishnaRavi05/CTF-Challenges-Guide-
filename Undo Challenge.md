@@ -1,6 +1,6 @@
 # 🧩 picoCTF 2026 — Undo
 
-> **Can you reverse a series of Linux text transformations to recover the original flag?**
+> 🔐 Can you reverse a series of Linux text transformations to recover the original flag?
 
 <p align="center">
 
@@ -15,120 +15,217 @@
 
 ## 📌 Challenge Information
 
-| Information | Details |
+| 🏷️ Property | 📋 Details |
 |---|---|
 | 🏆 Platform | picoCTF 2026 |
 | 🧩 Challenge | Undo |
 | 📂 Category | General Skills |
 | 🟢 Difficulty | Easy |
-| 🛠️ Skills | Linux, Base64, `rev`, `tr`, ROT13 |
+| 🐧 Environment | Linux |
+| 🛠️ Tools | `base64`, `rev`, `tr` |
 
 ---
 
 ## 🎯 Objective
 
-The challenge gives us a string that has been transformed multiple times using
-different Linux text-processing techniques.
+The challenge provides a string that has been transformed using multiple
+Linux text-processing operations.
 
-Our goal is to **reverse every transformation in the correct order** and recover
-the original flag.
+The goal is to **reverse each transformation in the correct order** and
+recover the original flag.
 
-### Initial Encoded String
+### 🔑 Initial Encoded String
 
 ```text
 KXBwMDhxNzdwLWZhMDFnQHplMHNmYTRlRy1nazNnLXRhMWZlcmlyRShsenJxbnBu
-🔎 Solution
-1️⃣ Reverse Base64 Encoding
+```
 
-The first hint tells us:
+### 💡 Important Concept
 
+> 🔄 When reversing multiple transformations, undo them in the **opposite order** in which they were originally applied.
+
+---
+
+# 🔎 Solution
+
+## 1️⃣ Reverse Base64 Encoding
+
+The first hint provided by the challenge was:
+
+```text
 Hint: Try reversing: base64
+```
 
 The input is Base64 encoded, so we need to decode it.
 
-Command
+### 💻 Command
+
+```bash
 base64 -d
+```
 
-Or:
+Or directly:
 
+```bash
 echo "KXBwMDhxNzdwLWZhMDFnQHplMHNmYTRlRy1nazNnLXRhMWZlcmlyRShsenJxbnBu" | base64 -d
-Output
+```
+
+### 📤 Output
+
+```text
 )pp08q77p-fa01g@ze0sfa4eG-gk3g-ta1ferirE(lzrqnpn
-2️⃣ Reverse the Text
+```
+
+---
+
+## 2️⃣ Reverse the Text
 
 The next transformation was reversing the text.
 
-The Linux command rev reverses the characters of a string.
+Linux provides the `rev` command to reverse the characters of a string.
 
-Command
+### 💻 Command
+
+```bash
 echo ")pp08q77p-fa01g@ze0sfa4eG-gk3g-ta1ferirE(lzrqnpn" | rev
-Output
+```
+
+### 📤 Output
+
+```text
 npnqrzl(Eriref1at-g3kg-Ge4afs0ez@g10af-p77q80pp)
-3️⃣ Replace - with _
+```
 
-The challenge tells us that underscores were previously replaced with dashes.
+---
 
-Therefore, we reverse:
+## 3️⃣ Replace `-` with `_`
 
+The challenge states that underscores were replaced with dashes.
+
+Therefore, we need to reverse:
+
+```text
 -  →  _
+```
 
-The Linux tr command is useful for character substitution.
+The `tr` command can be used for character substitution.
 
-Command
+### 💻 Command
+
+```bash
 echo "npnqrzl(Eriref1at-g3kg-Ge4afs0ez@g10af-p77q80pp)" | tr '-' '_'
-Output
-npnqrzl(Eriref1at_g3kg_Ge4afs0ez@g10af_p77q80pp)
-4️⃣ Replace Parentheses with Curly Braces
+```
 
-The original curly braces were transformed into parentheses.
+### 📤 Output
+
+```text
+npnqrzl(Eriref1at_g3kg_Ge4afs0ez@g10af_p77q80pp)
+```
+
+---
+
+## 4️⃣ Replace Parentheses with Curly Braces
+
+The challenge states that curly braces were replaced with parentheses.
 
 Therefore:
 
+```text
 (  →  {
 )  →  }
-Command
+```
+
+### 💻 Command
+
+```bash
 echo "npnqrzl(Eriref1at_g3kg_Ge4afs0ez@g10af_p77q80pp)" | tr '()' '{}'
-Output
+```
+
+### 📤 Output
+
+```text
 npnqrzl{Eriref1at_g3kg_Ge4afs0ez@g10af_p77q80pp}
-5️⃣ Reverse ROT13
+```
+
+---
+
+## 5️⃣ Reverse ROT13
 
 The final transformation was ROT13.
 
-ROT13 is special because applying it twice returns the original text.
+The challenge tells us:
 
-So we can use ROT13 again to reverse it.
+```text
+Hint: Applied ROT13 to letters.
+```
 
-Command
+ROT13 shifts each alphabetic character by 13 positions.
+
+An important property of ROT13 is that it is **self-reversing**:
+
+```text
+ROT13(ROT13(text)) = text
+```
+
+Therefore, applying ROT13 again will recover the original text.
+
+### 💻 Command
+
+```bash
 echo "npnqrzl{Eriref1at_g3kg_Ge4afs0ez@g10af_p77q80pp}" | tr 'A-Za-z' 'N-ZA-Mn-za-m'
-Output
+```
+
+### 📤 Output
+
+```text
 academy{Revers1ng_t3xt_Tr4nsf0rm@t10ns_c77d80cc}
-🚩 Flag
+```
+
+---
+
+# 🚩 Flag
+
 <div align="center">
-🎉 Challenge Solved!
+
+### 🎉 Challenge Solved!
+
+```text
 academy{Revers1ng_t3xt_Tr4nsf0rm@t10ns_c77d80cc}
+```
+
 </div>
-🔄 Transformation Chain
 
-The complete reverse process was:
+---
 
-┌─────────────────────────────────────────────────────┐
-│                  Encoded String                     │
-└──────────────────────┬──────────────────────────────┘
-                       ↓
-                 Base64 Decode
-                       ↓
-                     rev
-                       ↓
-                    - → _
-                       ↓
-                   () → {}
-                       ↓
-                    ROT13
-                       ↓
-┌──────────────────────┴──────────────────────────────┐
-│                 Original Flag                       │
-└─────────────────────────────────────────────────────┘
-In Short
+# 🔄 Transformation Chain
+
+The complete reverse process can be summarized as:
+
+```text
+Encoded String
+      │
+      ▼
+Base64 Decode
+      │
+      ▼
+     rev
+      │
+      ▼
+   - → _
+      │
+      ▼
+   () → {}
+      │
+      ▼
+    ROT13
+      │
+      ▼
+Original Flag
+```
+
+### ⚡ Quick Summary
+
+```text
 Base64
    ↓
 base64 -d
@@ -142,101 +239,127 @@ tr '()' '{}'
 ROT13
    ↓
 🚩 FLAG
-🛠️ Commands Used
-Command	Purpose
-base64 -d	Decode Base64
-rev	Reverse characters
-tr '-' '_'	Replace dashes with underscores
-tr '()' '{}'	Replace parentheses with curly braces
-tr 'A-Za-z' 'N-ZA-Mn-za-m'	Apply ROT13
-🧠 What I Learned
-🔹 base64
+```
 
-Base64 is commonly used to represent binary/text data using printable characters.
+---
 
+# 🛠️ Commands Used
+
+| Command | Purpose |
+|---|---|
+| `base64 -d` | Decode Base64 data |
+| `rev` | Reverse characters |
+| `tr '-' '_'` | Convert dashes to underscores |
+| `tr '()' '{}'` | Convert parentheses to curly braces |
+| `tr 'A-Za-z' 'N-ZA-Mn-za-m'` | Apply ROT13 |
+
+---
+
+# 🧠 What I Learned
+
+### 🐧 1. Base64
+
+Base64 is a common encoding technique used to represent data using printable characters.
+
+The following command decodes Base64:
+
+```bash
 base64 -d
+```
 
-is used to decode Base64 data.
+---
 
-🔹 rev
+### 🔄 2. `rev`
 
-The rev command reverses the characters of each line.
+The `rev` command reverses the characters in each line.
 
 Example:
 
+```bash
 echo "hello" | rev
+```
 
 Output:
 
+```text
 olleh
-🔹 tr
+```
 
-tr is a Linux command used for translating or replacing characters.
+---
+
+### 🔤 3. `tr`
+
+The `tr` command is useful for translating or replacing characters.
 
 Example:
 
+```bash
 echo "hello-world" | tr '-' '_'
+```
 
 Output:
 
+```text
 hello_world
-🔹 ROT13
+```
 
-ROT13 shifts each alphabetic character by 13 positions.
+---
 
-Example:
+### 🔐 4. ROT13
 
+ROT13 shifts every alphabetic character by 13 positions.
+
+For example:
+
+```text
 hello → uryyb
+```
 
-Because ROT13 is reversible:
+Applying ROT13 again gives:
 
-hello → ROT13 → uryyb → ROT13 → hello
-💡 Key Takeaway
+```text
+uryyb → hello
+```
 
-The main lesson from this challenge is:
+---
 
-When reversing multiple transformations, always undo them in the opposite order in which they were applied.
+# 💡 Key Takeaway
 
-This challenge provided a simple but useful introduction to Linux text-processing commands and basic encoding/obfuscation techniques.
+The most important concept from this challenge is:
 
-📚 Skills Practiced
-🐧 Linux Command Line
-🔐 Base64 Encoding / Decoding
-🔄 Text Reversal
-🔤 Character Translation
-🔑 ROT13
-🧩 CTF Problem Solving
-🏁 Conclusion
+> **When reversing a sequence of transformations, always work backwards from the final transformation to the first.**
 
-The Undo challenge demonstrates how several simple transformations can make
-a string appear complicated.
+This challenge provided practical experience with:
 
-By identifying each transformation and reversing them systematically, the
-original flag can be recovered.
+- 🐧 Linux command-line utilities
+- 🔐 Base64 encoding/decoding
+- 🔄 String reversal
+- 🔤 Character substitution
+- 🔑 ROT13
+- 🧩 CTF problem solving
 
-Final Flag
+---
+
+# 🏁 Conclusion
+
+The **Undo** challenge demonstrates how multiple simple text transformations can make a string appear difficult to understand.
+
+By identifying each transformation and reversing them systematically, we were able to recover the original flag.
+
+### 🚩 Final Flag
+
+```text
 academy{Revers1ng_t3xt_Tr4nsf0rm@t10ns_c77d80cc}
+```
+
+---
+
 <p align="center">
 
 ⭐ <b>picoCTF 2026 — Undo</b> ⭐
 
-<br>
+<br><br>
 
 <i>Learn • Practice • Break • Understand • Repeat</i>
 
-</p> ```
-✨ For your GitHub
-
-I recommend keeping your repository structure like this:
-
-picoCTF-2026/
-│
-├── General-Skills/
-│   │
-│   └── Undo/
-│       ├── README.md
-│       └── screenshot.png
-│
-└── README.md
-
-And your GitHub page will then have a much cleaner CTF write-up appearance, with the challenge information at the top, commands in terminal blocks, a transformation diagram, and the flag clearly separated at the end.
+</p>
